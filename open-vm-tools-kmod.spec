@@ -12,7 +12,7 @@
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.1
+Release:   1%{?dist}.2
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -75,6 +75,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Dec 21 2008 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.130226-1.2
+- rebuild for latest Fedora kernel;
+
 * Thu Dec 18 2008 Denis Leroy <denis@poolshark.org> - 0.0.0.130226-1.1
 - Update to upstream 130226
 - Added new kernel module pvscsi
