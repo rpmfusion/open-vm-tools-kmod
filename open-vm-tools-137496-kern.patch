@@ -1,0 +1,259 @@
+diff -ru open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/file.c open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/file.c
+--- open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/file.c	2008-12-24 09:02:13.000000000 +0100
++++ open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/file.c	2009-01-13 10:01:45.000000000 +0100
+@@ -634,7 +634,7 @@
+             iparent = dparent->d_inode;
+ 
+             HgfsSetUidGid(iparent, file->f_dentry,
+-                          current->fsuid, current->fsgid);
++                          current_fsuid(), current_fsgid());
+ 
+             dput(dparent);
+          }
+diff -ru open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/filesystem.c open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/filesystem.c
+--- open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/filesystem.c	2008-12-24 09:02:13.000000000 +0100
++++ open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/filesystem.c	2009-01-13 10:04:30.000000000 +0100
+@@ -256,13 +256,13 @@
+    if (si->uidSet) {
+       si->uid = mountInfo->uid;
+    } else {
+-      si->uid = current->uid;
++      si->uid = current_uid();
+    }
+    si->gidSet = mountInfo->gidSet;
+    if (si->gidSet) {
+       si->gid = mountInfo->gid;
+    } else {
+-      si->gid = current->gid;
++      si->gid = current_gid();
+    }
+    si->fmask = mountInfo->fmask;
+    si->dmask = mountInfo->dmask;
+diff -ru open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/inode.c open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/inode.c
+--- open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/inode.c	2008-12-24 09:02:13.000000000 +0100
++++ open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/inode.c	2009-01-13 10:07:53.000000000 +0100
+@@ -1194,7 +1194,7 @@
+              * a Linux machine and as root, but we might as well give it
+              * a go.
+              */
+-            HgfsSetUidGid(dir, dentry, current->fsuid, current->fsgid);
++ 	     HgfsSetUidGid(dir, dentry, current_fsuid(), current_fsgid());
+          }
+ 
+          /*
+diff -ru open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/page.c open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/page.c
+--- open-vm-tools-2008.12.23-137496.orig/modules/linux/vmhgfs/page.c	2008-12-24 09:02:13.000000000 +0100
++++ open-vm-tools-2008.12.23-137496/modules/linux/vmhgfs/page.c	2009-01-13 10:13:39.000000000 +0100
+@@ -864,7 +864,7 @@
+    unsigned pageTo = pos + len;
+    struct page *page;
+ 
+-   page = __grab_cache_page(mapping, index);
++   page = grab_cache_page(mapping, index);
+    if (page == NULL) {
+       return -ENOMEM;
+    }
+diff -ru open-vm-tools-2008.12.23-137496.orig/modules/linux/vmxnet/vmxnet.c open-vm-tools-2008.12.23-137496/modules/linux/vmxnet/vmxnet.c
+--- open-vm-tools-2008.12.23-137496.orig/modules/linux/vmxnet/vmxnet.c	2008-12-24 09:02:16.000000000 +0100
++++ open-vm-tools-2008.12.23-137496/modules/linux/vmxnet/vmxnet.c	2009-01-13 09:57:35.000000000 +0100
+@@ -185,7 +185,7 @@
+ static int
+ vmxnet_change_mtu(struct net_device *dev, int new_mtu)
+ {
+-   struct Vmxnet_Private *lp = (struct Vmxnet_Private *)dev->priv;
++   struct Vmxnet_Private *lp = (struct Vmxnet_Private *)netdev_priv(dev);
+ 
+    if (new_mtu < VMXNET_MIN_MTU || new_mtu > VMXNET_MAX_MTU) {
+       return -EINVAL;
+@@ -259,7 +259,7 @@
+ vmxnet_get_drvinfo(struct net_device *dev,
+                    struct ethtool_drvinfo *drvinfo)
+ {
+-   struct Vmxnet_Private *lp = dev->priv;
++   struct Vmxnet_Private *lp = (struct Vmxnet_Private *)netdev_priv(dev);
+ 
+    strncpy(drvinfo->driver, vmxnet_driver.name, sizeof(drvinfo->driver));
+    drvinfo->driver[sizeof(drvinfo->driver) - 1] = '\0';
+@@ -297,7 +297,7 @@
+ vmxnet_set_tso(struct net_device *dev, u32 data)
+ {
+    if (data) {
+-      struct Vmxnet_Private *lp = (struct Vmxnet_Private *)dev->priv;
++      struct Vmxnet_Private *lp = (struct Vmxnet_Private *)(struct Vmxnet_Private *)netdev_priv(dev);
+ 
+       if (!lp->tso) {
+          return -EINVAL;
+@@ -449,7 +449,8 @@
+    }
+ 
+    if (value.data) {
+-      struct Vmxnet_Private *lp = (struct Vmxnet_Private *)dev->priv;
++      struct Vmxnet_Private *lp = (struct Vmxnet_Private *)(struct Vmxnet_Private *)netdev_priv(dev);
++
+ 
+       if (!lp->tso) {
+          return -EINVAL;
+@@ -651,7 +652,7 @@
+    uint32 status;
+    int ok;
+ 
+-   lp = dev->priv;
++   lp = (struct Vmxnet_Private *)netdev_priv(dev);
+    status = inl(dev->base_addr + VMXNET_STATUS_ADDR);
+    ok = (status & VMXNET_STATUS_CONNECTED) != 0;
+    if (ok != netif_carrier_ok(dev)) {
+@@ -833,7 +834,7 @@
+       goto morph_back;
+    }
+ 
+-   lp = dev->priv;
++   lp = (struct Vmxnet_Private *)netdev_priv(dev);
+    lp->pdev = pdev;
+ 
+    dev->base_addr = ioaddr;
+@@ -1124,7 +1125,7 @@
+ vmxnet_remove_device(struct pci_dev* pdev)
+ {
+    struct net_device *dev = pci_get_drvdata(pdev);
+-   struct Vmxnet_Private *lp = dev->priv;
++   struct Vmxnet_Private *lp = (struct Vmxnet_Private *)netdev_priv(dev);
+ 
+    /*
+     * Do this before device is gone so we never call netif_carrier_* after
+@@ -1195,7 +1196,7 @@
+ static int
+ vmxnet_init_ring(struct net_device *dev)
+ {
+-   struct Vmxnet_Private *lp = (Vmxnet_Private *)dev->priv;
++   struct Vmxnet_Private *lp = (Vmxnet_Private *)(struct Vmxnet_Private *)netdev_priv(dev);;
+    Vmxnet2_DriverData *dd = lp->dd;
+    unsigned int i;
+    size_t offset;
+@@ -1320,7 +1321,7 @@
+ static int
+ vmxnet_open(struct net_device *dev)
+ {
+-   struct Vmxnet_Private *lp = (Vmxnet_Private *)dev->priv;
++   struct Vmxnet_Private *lp = (Vmxnet_Private *)(struct Vmxnet_Private *)netdev_priv(dev);
+    unsigned int ioaddr = dev->base_addr;
+    u32 paddr;
+ 
+@@ -1576,7 +1577,7 @@
+ static void
+ check_tx_queue(struct net_device *dev)
+ {
+-   Vmxnet_Private *lp = (Vmxnet_Private *)dev->priv;
++   Vmxnet_Private *lp = (Vmxnet_Private *)(struct Vmxnet_Private *)netdev_priv(dev);
+    Vmxnet2_DriverData *dd = lp->dd;
+    int completed = 0;
+ 
+@@ -1640,7 +1641,7 @@
+ vmxnet_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+    Vmxnet_TxStatus status = VMXNET_DEFER_TRANSMIT;
+-   struct Vmxnet_Private *lp = (struct Vmxnet_Private *)dev->priv;
++   struct Vmxnet_Private *lp = (struct Vmxnet_Private *)(struct Vmxnet_Private *)netdev_priv(dev);
+    Vmxnet2_DriverData *dd = lp->dd;
+    unsigned long flags;
+    Vmxnet2_TxRingEntry *xre;
+@@ -2039,7 +2040,7 @@
+ static int
+ vmxnet_rx(struct net_device *dev)
+ {
+-   Vmxnet_Private *lp = (Vmxnet_Private *)dev->priv;
++   Vmxnet_Private *lp = (Vmxnet_Private *)(struct Vmxnet_Private *)netdev_priv(dev);
+    Vmxnet2_DriverData *dd = lp->dd;
+ 
+    if (!lp->devOpen) {
+@@ -2165,7 +2166,7 @@
+    }
+ 
+ 
+-   lp = (struct Vmxnet_Private *)dev->priv;
++   lp = (struct Vmxnet_Private *)netdev_priv(dev);
+    outl(VMXNET_CMD_INTR_ACK, dev->base_addr + VMXNET_COMMAND_ADDR);
+ 
+    dd = lp->dd;
+@@ -2247,7 +2248,7 @@
+ vmxnet_close(struct net_device *dev)
+ {
+    unsigned int ioaddr = dev->base_addr;
+-   Vmxnet_Private *lp = (Vmxnet_Private *)dev->priv;
++   Vmxnet_Private *lp = (struct Vmxnet_Private *)netdev_priv(dev);
+    int i;
+    unsigned long flags;
+ 
+@@ -2337,7 +2338,7 @@
+ static int
+ vmxnet_load_multicast (struct net_device *dev)
+ {
+-    Vmxnet_Private *lp = (Vmxnet_Private *) dev->priv;
++    Vmxnet_Private *lp = (struct Vmxnet_Private *)netdev_priv(dev);
+     volatile u16 *mcast_table = (u16 *)lp->dd->LADRF;
+     struct dev_mc_list *dmi = dev->mc_list;
+     char *addrs;
+@@ -2398,7 +2399,7 @@
+ vmxnet_set_multicast_list(struct net_device *dev)
+ {
+    unsigned int ioaddr = dev->base_addr;
+-   Vmxnet_Private *lp = (Vmxnet_Private *)dev->priv;
++   Vmxnet_Private *lp = (struct Vmxnet_Private *)netdev_priv(dev);
+ 
+    lp->dd->ifflags = ~(VMXNET_IFF_PROMISC
+                       |VMXNET_IFF_BROADCAST
+@@ -2478,7 +2479,7 @@
+ static struct net_device_stats *
+ vmxnet_get_stats(struct net_device *dev)
+ {
+-   Vmxnet_Private *lp = (Vmxnet_Private *)dev->priv;
++   Vmxnet_Private *lp = (struct Vmxnet_Private *)netdev_priv(dev);
+ 
+    return &lp->stats;
+ }
+diff -ru open-vm-tools-2008.12.23-137496.orig/modules/linux/vmxnet3/compat_netdevice.h open-vm-tools-2008.12.23-137496/modules/linux/vmxnet3/compat_netdevice.h
+--- open-vm-tools-2008.12.23-137496.orig/modules/linux/vmxnet3/compat_netdevice.h	2008-12-24 09:02:17.000000000 +0100
++++ open-vm-tools-2008.12.23-137496/modules/linux/vmxnet3/compat_netdevice.h	2009-01-13 10:08:53.000000000 +0100
+@@ -266,7 +266,7 @@
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
+ #define compat_netif_napi_add(dev, napi, poll, quota) \
+    netif_napi_add(dev, napi, poll, quota)
+-#define compat_netif_rx_schedule(dev, napi) netif_rx_schedule(dev, napi)
++#define compat_netif_rx_schedule(dev, napi) netif_rx_schedule(napi)
+ #define compat_napi_enable(dev, napi)       napi_enable(napi)
+ #define compat_napi_disable(dev, napi)      napi_disable(napi)
+ #else
+diff -ru open-vm-tools-2008.12.23-137496.orig/modules/linux/vmxnet3/vmxnet3.c open-vm-tools-2008.12.23-137496/modules/linux/vmxnet3/vmxnet3.c
+--- open-vm-tools-2008.12.23-137496.orig/modules/linux/vmxnet3/vmxnet3.c	2008-12-24 09:02:17.000000000 +0100
++++ open-vm-tools-2008.12.23-137496/modules/linux/vmxnet3/vmxnet3.c	2009-01-13 10:12:45.000000000 +0100
+@@ -380,12 +380,11 @@
+ {
+    struct vmxnet3_adapter *adapter = container_of(napi, struct vmxnet3_adapter, napi);
+    int rxd_done, txd_done;
+-   struct net_device *netdev = adapter->netdev;
+ 
+    vmxnet3_do_poll(adapter, budget, &txd_done, &rxd_done);
+ 
+    if (rxd_done < budget) {
+-      netif_rx_complete(netdev, napi);
++      netif_rx_complete(napi);
+       vmxnet3_enable_intr(adapter, 0);
+    }
+    return rxd_done;
+@@ -409,7 +408,7 @@
+ vmxnet3_poll(struct net_device *poll_dev, int *budget)
+ {
+    int rxd_done, txd_done, quota;
+-   struct vmxnet3_adapter *adapter = poll_dev->priv;
++   struct vmxnet3_adapter *adapter = netdev_priv(poll_dev);
+ 
+    quota = min(*budget, poll_dev->quota);
+ 
+@@ -451,7 +450,7 @@
+ #endif
+ {
+    struct net_device *dev = dev_id;
+-   struct vmxnet3_adapter *adapter = dev->priv;
++   struct vmxnet3_adapter *adapter = netdev_priv(dev);
+ 
+    if (UNLIKELY(adapter->intr.type == VMXNET3_IT_INTX)) {
+       uint32 icr = VMXNET3_READ_BAR1_REG(adapter, VMXNET3_REG_ICR);

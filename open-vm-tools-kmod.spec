@@ -12,13 +12,14 @@
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.1
+Release:   2%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
 URL:       http://open-vm-tools.sourceforge.net/
 Source0:   http://downloads.sourceforge.net/%{tname}/%{tname}-%{builddate}-%{buildver}.tar.gz
 Source11:  %{tname}-excludekernel-filterfile
+Patch0:    open-vm-tools-137496-kern.patch
 BuildRoot: %{_tmppath}/%{name}-%{builddate}-%{release}-root-%(%{__id_u} -n)
 
 # VMWare only supports x86 architectures.
@@ -44,6 +45,7 @@ machines. This package contains the kernel modules of open-vm-tools.
 kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterfile %{SOURCE11} %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null
 
 %setup -q -n open-vm-tools-%{builddate}-%{buildver}
+%patch0 -p1 -b .kern
 for kernel_version  in %{?kernel_versions} ; do
     cp -ar modules/linux _kmod_build_${kernel_version%%___*}
 done
@@ -52,7 +54,7 @@ done
 %build
 for kernel_version  in %{?kernel_versions} ; do
     for ovtmodule in %{ovtmodules}; do
-        make -C ${PWD}/_kmod_build_${kernel_version%%___*}/${ovtmodule} VM_UNAME=${kernel_version%%___*} HEADER_DIR="${kernel_version##*___}/include"
+        make -C ${PWD}/_kmod_build_${kernel_version%%___*}/${ovtmodule} VM_UNAME=${kernel_version%%___*} HEADER_DIR="${kernel_version##*___}/include" CC_OPTS=-DVMW_HAVE_EPOLL
     done
 done
 
@@ -73,6 +75,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jan 13 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.137496-2
+- Added patch to fix compilation with latest rawhide kernel
+
 * Sun Jan 11 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.137496-1.1
 - rebuild for latest Fedora kernel;
 
