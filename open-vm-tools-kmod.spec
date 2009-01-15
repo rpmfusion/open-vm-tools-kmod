@@ -6,13 +6,13 @@
 %define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2008.11.18
-%define buildver 130226
+%define builddate 2008.12.23
+%define buildver 137496
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.2
+Release:   1%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -61,7 +61,7 @@ done
 rm -rf $RPM_BUILD_ROOT
 for kernel_version  in %{?kernel_versions} ; do
     for ovtmodule in %{ovtmodules}; do
-        install -D -m 755 _kmod_build_${kernel_version%%___*}/${ovtmodule}/${ovtmodule}.ko $RPM_BUILD_ROOT%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/${ovtmodule}.ko
+        install -D -m 755 _kmod_build_${kernel_version%%___*}/${ovtmodule}/${ovtmodule}.ko $RPM_BUILD_ROOT%{kmodinstdir_prefix}${kernel_version%%___*}%{kmodinstdir_postfix}${ovtmodule}.ko
     done
 done
 # akmods:
@@ -73,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 14 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.137496-1
+- Update to upstream build 137496
+
 * Sat Dec 20 2008 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.130226-1.2
 - rebuild for latest Fedora kernel;
 
