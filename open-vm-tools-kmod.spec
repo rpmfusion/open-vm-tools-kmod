@@ -6,13 +6,13 @@
 %define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2008.12.23
-%define buildver 137496
+%define builddate 2009.01.21
+%define buildver 142982
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   2%{?dist}.2
+Release:   1%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -75,6 +75,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 28 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.142982-1
+- Update to upstream build 142982
+
 * Sun Jan 25 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.137496-2.2
 - rebuild for latest Fedora kernel;
 
