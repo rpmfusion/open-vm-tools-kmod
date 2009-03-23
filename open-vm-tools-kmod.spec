@@ -6,20 +6,19 @@
 %define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2009.01.21
-%define buildver 142982
+%define builddate 2009.03.18
+%define buildver 154848
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.2
+Release:   1%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
 URL:       http://open-vm-tools.sourceforge.net/
 Source0:   http://downloads.sourceforge.net/%{tname}/%{tname}-%{builddate}-%{buildver}.tar.gz
 Source11:  %{tname}-excludekernel-filterfile
-Patch0:    open-vm-tools-137496-kern.patch
 BuildRoot: %{_tmppath}/%{name}-%{builddate}-%{release}-root-%(%{__id_u} -n)
 
 # VMWare only supports x86 architectures.
@@ -45,7 +44,6 @@ machines. This package contains the kernel modules of open-vm-tools.
 kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterfile %{SOURCE11} %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null
 
 %setup -q -n open-vm-tools-%{builddate}-%{buildver}
-%patch0 -p1 -b .kern
 for kernel_version  in %{?kernel_versions} ; do
     cp -ar modules/linux _kmod_build_${kernel_version%%___*}
 done
@@ -75,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 23 2009  <denis@poolshark.org> - 0.0.0.154848-1
+- Update to upstream build 154848
+
 * Sun Feb 15 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.142982-1.2
 - rebuild for latest Fedora kernel;
 
