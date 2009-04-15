@@ -3,16 +3,16 @@
 # "buildforkernels newest" macro for just that build; immediately after
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
-%define buildforkernels newest
+#define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2009.01.21
-%define buildver 142982
+%define builddate 2009.03.18
+%define buildver 154848
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.4
+Release:   1%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -73,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Apr 15 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.154848-1
+- Update to upstream build 154848
+
 * Wed Apr 15 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.142982-1.4
 - rebuild for new kernels
 
