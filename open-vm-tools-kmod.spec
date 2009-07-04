@@ -6,13 +6,13 @@
 %define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2009.03.18
-%define buildver 154848
+%define builddate 2009.06.18
+%define buildver 172495
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.10
+Release:   1%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -45,14 +45,16 @@ kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterf
 
 %setup -q -n open-vm-tools-%{builddate}-%{buildver}
 for kernel_version  in %{?kernel_versions} ; do
-    cp -ar modules/linux _kmod_build_${kernel_version%%___*}
+    mkdir -p _kmod_build_${kernel_version%%___*}/
+    cp -ar modules _kmod_build_${kernel_version%%___*}/
+    cp -ar lib _kmod_build_${kernel_version%%___*}/
 done
 
 
 %build
 for kernel_version  in %{?kernel_versions} ; do
     for ovtmodule in %{ovtmodules}; do
-        make -C ${PWD}/_kmod_build_${kernel_version%%___*}/${ovtmodule} VM_UNAME=${kernel_version%%___*} HEADER_DIR="${kernel_version##*___}/include" CC_OPTS=-DVMW_HAVE_EPOLL
+        make -C ${PWD}/_kmod_build_${kernel_version%%___*}/modules/linux/${ovtmodule} VM_UNAME=${kernel_version%%___*} HEADER_DIR="${kernel_version##*___}/include" OVT_SOURCE_DIR=${PWD}/_kmod_build_${kernel_version%%___*} CC_OPTS=-DVMW_HAVE_EPOLL
     done
 done
 
@@ -61,7 +63,7 @@ done
 rm -rf $RPM_BUILD_ROOT
 for kernel_version  in %{?kernel_versions} ; do
     for ovtmodule in %{ovtmodules}; do
-        install -D -m 755 _kmod_build_${kernel_version%%___*}/${ovtmodule}/${ovtmodule}.ko $RPM_BUILD_ROOT%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/${ovtmodule}.ko
+        install -D -m 755 _kmod_build_${kernel_version%%___*}/modules/linux/${ovtmodule}/${ovtmodule}.ko $RPM_BUILD_ROOT%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/${ovtmodule}.ko
     done
 done
 # akmods:
@@ -73,6 +75,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Jul  4 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.172495-1
+- Update to upstream build 172495
+- Some build changes to use new common code subdirectory
+
 * Sun Jun 21 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.154848-1.10
 - rebuild for new kernels
 
