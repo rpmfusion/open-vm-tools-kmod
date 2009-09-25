@@ -6,8 +6,8 @@
 #define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2009.07.22
-%define buildver 179896
+%define builddate 2009.08.24
+%define buildver 187411
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
@@ -75,6 +75,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 25 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.187411-1
+- Update to upstream build 187411
+
 * Fri Aug 14 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.179896-1
 - Update to upstream build 179896
 
