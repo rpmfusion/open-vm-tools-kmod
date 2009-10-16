@@ -12,7 +12,7 @@
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.12
+Release:   1%{?dist}.13
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -73,6 +73,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 16 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.154848-1.13
+- rebuild for new kernels
+
 * Fri Oct 02 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.154848-1.12
 - rebuild for new kernels
 
