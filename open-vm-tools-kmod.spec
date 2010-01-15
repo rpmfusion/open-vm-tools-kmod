@@ -4,11 +4,11 @@
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
 
-%define buildforkernels newest
+#%define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2009.11.17
-%define buildver 210370
+%define builddate 2009.12.16
+%define buildver 217847
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
@@ -18,8 +18,7 @@ Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
 URL:       http://open-vm-tools.sourceforge.net/
-# Temporary fix for inconsistent tarball name
-Source0:   http://downloads.sourceforge.net/%{tname}/%{tname}-2009.11.16-%{buildver}.tar.gz
+Source0:   http://downloads.sourceforge.net/%{tname}/%{tname}-%{builddate}-%{buildver}.tar.gz
 Source11:  %{tname}-excludekernel-filterfile
 BuildRoot: %{_tmppath}/%{name}-%{builddate}-%{release}-root-%(%{__id_u} -n)
 
@@ -77,6 +76,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jan 15 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.217847-1
+- Update to upstream build 217847
+- Should fix bug 1025
+
 * Sat Dec 26 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.210370-1.1
 - rebuild for new kernel
 
