@@ -9,7 +9,7 @@
 %define tname open-vm-tools
 %define builddate 2009.12.16
 %define buildver 217847
-%define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vsock pvscsi
+%define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
