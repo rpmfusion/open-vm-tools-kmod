@@ -7,8 +7,8 @@
 #define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2009.12.16
-%define buildver 217847
+%define builddate 2010.01.19
+%define buildver 226760
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vsock pvscsi
 
 Name:      open-vm-tools-kmod
@@ -18,7 +18,6 @@ Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
 URL:       http://open-vm-tools.sourceforge.net/
-# Temporary fix for inconsistent tarball name
 Source0:   http://downloads.sourceforge.net/%{tname}/%{tname}-%{builddate}-%{buildver}.tar.gz
 Source11:  %{tname}-excludekernel-filterfile
 BuildRoot: %{_tmppath}/%{name}-%{builddate}-%{release}-root-%(%{__id_u} -n)
@@ -77,6 +76,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 17 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.226760-1
+- Update to build 226760
+
 * Tue Dec 29 2009 Denis Leroy <denis@poolshark.org> - 0.0.0.217847-1
 - Update to upstream build 217847
 - Removed build of vmxnet3, is upstream as of kernel 2.6.32
