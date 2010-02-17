@@ -4,22 +4,23 @@
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
 
-%define buildforkernels newest
+#define buildforkernels newest
 
 %define tname open-vm-tools
 %define builddate 2010.01.19
 %define buildver 226760
-%define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vsock pvscsi
+%define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vmxnet3 vsock pvscsi
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.2
+Release:   2%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
 URL:       http://open-vm-tools.sourceforge.net/
 Source0:   http://downloads.sourceforge.net/%{tname}/%{tname}-%{builddate}-%{buildver}.tar.gz
 Source11:  %{tname}-excludekernel-filterfile
+Patch0:    open-vm-tools-217847-vmxnet3.patch
 BuildRoot: %{_tmppath}/%{name}-%{builddate}-%{release}-root-%(%{__id_u} -n)
 
 # VMWare only supports x86 architectures.
@@ -45,6 +46,7 @@ machines. This package contains the kernel modules of open-vm-tools.
 kmodtool  --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterfile %{SOURCE11} %{?buildforkernels:--%{buildforkernels}} %{?kernels:--for-kernels "%{?kernels}"} 2>/dev/null
 
 %setup -q -n open-vm-tools-%{builddate}-%{buildver}
+%patch0 -p1
 for kernel_version  in %{?kernel_versions} ; do
     mkdir -p _kmod_build_${kernel_version%%___*}/
     cp -ar modules _kmod_build_${kernel_version%%___*}/
@@ -54,7 +56,11 @@ done
 
 %build
 for kernel_version  in %{?kernel_versions} ; do
+    kvminor=`echo $kernel_version | awk -F '.' '{print $3}'`
     for ovtmodule in %{ovtmodules}; do
+        if [ $ovtmodule = "vmxnet3" -a $kvminor -ge 32 ]; then
+            continue;
+        fi
         make -C ${PWD}/_kmod_build_${kernel_version%%___*}/modules/linux/${ovtmodule} VM_UNAME=${kernel_version%%___*} HEADER_DIR="${kernel_version##*___}/include" OVT_SOURCE_DIR=${PWD}/_kmod_build_${kernel_version%%___*} CC_OPTS=-DVMW_HAVE_EPOLL
     done
 done
@@ -63,7 +69,11 @@ done
 %install
 rm -rf $RPM_BUILD_ROOT
 for kernel_version  in %{?kernel_versions} ; do
+    kvminor=`echo $kernel_version | awk -F '.' '{print $3}'`
     for ovtmodule in %{ovtmodules}; do
+        if [ $ovtmodule = "vmxnet3" -a $kvminor -ge 32 ]; then
+            continue;
+        fi
         install -D -m 755 _kmod_build_${kernel_version%%___*}/modules/linux/${ovtmodule}/${ovtmodule}.ko $RPM_BUILD_ROOT%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/${ovtmodule}.ko
     done
 done
@@ -76,6 +86,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 17 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.226760-2
+- Adding patch with vmxnet3 sources, build vmxnet3 only if kernel < 2.6.32
+
 * Thu Feb 11 2010 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.226760-1.2
 - rebuild for new kernel
 
