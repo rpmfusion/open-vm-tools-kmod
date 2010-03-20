@@ -7,8 +7,8 @@
 #define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2010.01.19
-%define buildver 226760
+%define builddate 2010.02.23
+%define buildver 236320
 %define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vsock pvscsi
 
 Name:      open-vm-tools-kmod
@@ -76,6 +76,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Mar 20 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.236320-1
+- Update to upstream build 236320
+
 * Wed Feb 17 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.226760-1
 - Update to build 226760
 
