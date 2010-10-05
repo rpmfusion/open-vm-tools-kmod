@@ -7,9 +7,9 @@
 #define buildforkernels newest
 
 %define tname open-vm-tools
-%define builddate 2010.03.20
-%define buildver 243334
-%define ovtmodules vmblock vmci vmhgfs vmmemctl vmsync vmxnet vsock pvscsi
+%define builddate 2010.09.19
+%define buildver 301124
+%define ovtmodules vmblock vmci vmhgfs vmsync vmxnet vsock
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
@@ -23,7 +23,7 @@ Source11:  %{tname}-excludekernel-filterfile
 BuildRoot: %{_tmppath}/%{name}-%{builddate}-%{release}-root-%(%{__id_u} -n)
 
 # VMWare only supports x86 architectures.
-ExclusiveArch:  i686 x86_64
+ExclusiveArch:  %{ix86} x86_64
 
 # get the needed BuildRequires (in parts depending on what we build for)
 BuildRequires:  %{_bindir}/kmodtool
@@ -76,6 +76,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct  5 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.301124-1
+- Update to build 301124
+- vmemctl and pvscsi are upstreamed as of kernel 2.6.34
+
 * Thu Apr  8 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.243334-1
 - Update to upstream build 243334
 
