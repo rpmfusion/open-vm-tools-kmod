@@ -13,7 +13,7 @@
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -76,6 +76,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat May 28 2011 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.0.0.301124-2
+- rebuild for F15 release kernel
+
 * Tue Oct  5 2010 Denis Leroy <denis@poolshark.org> - 0.0.0.301124-1
 - Update to build 301124
 - vmemctl and pvscsi are upstreamed as of kernel 2.6.34
