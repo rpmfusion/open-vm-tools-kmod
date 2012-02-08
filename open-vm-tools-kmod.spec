@@ -4,7 +4,7 @@
 # queuing that build enable the macro again for subsequent builds; that way
 # a new akmod package will only get build when a new one is actually needed
 
-%define buildforkernels current
+%define buildforkernels akmod
 
 %define tname open-vm-tools
 %define builddate 2010.09.19
