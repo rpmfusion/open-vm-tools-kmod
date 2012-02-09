@@ -13,7 +13,7 @@
 
 Name:      open-vm-tools-kmod
 Version:   0.0.0.%{buildver}
-Release:   1%{?dist}.21
+Release:   1%{?dist}.22
 Summary:   VMware Tools Kernel Modules
 Group:     System Environment/Kernel
 License:   GPLv2
@@ -76,6 +76,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Feb 09 2012 Nicolas Chauvet <kwizart@gmail.com> - 0.0.0.301124-1.22
+- rebuild for updated kernel
+
 * Fri Feb 03 2012 Nicolas Chauvet <kwizart@gmail.com> - 0.0.0.301124-1.21
 - rebuild for updated kernel
 
